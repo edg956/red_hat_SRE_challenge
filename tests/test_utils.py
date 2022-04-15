@@ -15,13 +15,14 @@ def bad_repository():
     [
         ("https://github.com/django/django", "django", "django"),
         ("https://github.com/django/django.git", "django", "django"),
+        ("https://github.com/org/test", "org", "test"),
     ]
 )
 def test_extract_repository_info_from_correct_urls(url, expected_owner, expected_repo):
     owner, repo = extract_repository_from_url(url)
 
-    assert owner, expected_owner
-    assert repo, expected_repo
+    assert owner == expected_owner
+    assert repo == expected_repo
 
 
 @pytest.mark.parametrize(
