@@ -18,7 +18,7 @@ class HttpClient:
         self.config = config
 
 
-class RepositoriesListClient(HttpClient):
+class RepositoryListClient(HttpClient):
     def list_of_repositories(self, parser: Parser):
         if not self.config.repository_list_url:
             raise ValueError("No repository list url specified")
