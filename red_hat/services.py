@@ -13,6 +13,35 @@ from red_hat.utils import extract_repository_from_url
 logger = logging.getLogger(__name__)
 
 
+def search_for_dockerfile(owner: str, repo_name: str, sha: str, client: GithubClient) -> T.List:
+    paths = client.list_repository_files(owner, repo_name, sha)
+    return list(filter(lambda x: "dockerfile" in os.path.basename(x).lower(), paths))
+
+
+def extract_from_paths(owner: str, repo_name: str, sha: str, paths: str, client: GithubClient) -> T.Dict:
+    result = {}
+    for path in paths:
+        result[path] = extract_from_dockerfile(owner, repo_name, sha, path, client)
+    return result
+
+
+def extract_from_dockerfile(owner: str, repo_name: str, sha: str, paths: str, client: GithubClient) -> T.Dict:
+    result = {}
+    for path in paths:
+        statements = client.get_dockerfile(owner, repo_name, sha, path, parser=DockerfileParser())
+
+        result[path] = list(
+            map(
+                lambda x: x[0],
+                filter(
+                    lambda x: len(x) > 0,
+                    statements
+                )
+            )
+        )
+    return result
+
+
 class ExtractorService(abc.ABC):
     @classmethod
     @abc.abstractmethod
@@ -54,38 +83,16 @@ class SecuentialExtractorService(abc.ABC):
         return {"data": data, "errors": errors}
 
 
-def search_for_dockerfile(owner: str, repo_name: str, sha: str, client: GithubClient) -> T.List:
-    paths = client.list_repository_files(owner, repo_name, sha)
-    return list(filter(lambda x: "dockerfile" in os.path.basename(x).lower(), paths))
-
-
-def extract_from_paths(owner: str, repo_name: str, sha: str, paths: str, client: GithubClient) -> T.Dict:
-    result = {}
-    for path in paths:
-        result[path] = extract_from_dockerfile(owner, repo_name, sha, path, client)
-    return result
-
-
-def extract_from_dockerfile(owner: str, repo_name: str, sha: str, paths: str, client: GithubClient) -> T.Dict:
-    result = {}
-    for path in paths:
-        statements = client.get_dockerfile(owner, repo_name, sha, path, parser=DockerfileParser())
-
-        result[path] = list(
-            map(
-                lambda x: x[0],
-                filter(
-                    lambda x: len(x) > 0,
-                    statements
-                )
-            )
-        )
-    return result
+class ThreadedExtractorService:
+    @classmethod
+    def extract_images_from(cls, repos: T.Iterable[T.Tuple], client: GithubClient) -> T.Dict:
+        pass
 
 
 def extractor_factory(config: Config) -> ExtractorService:
     services_map = {
-        "SecuentialExtractorService": SecuentialExtractorService
+        "SecuentialExtractorService": SecuentialExtractorService,
+        "ThreadedExtractorService": ThreadedExtractorService,
     }
 
     assert config.extractor_class in services_map, (

@@ -55,7 +55,7 @@ class TestServices:
         assert r[1] == 'alpine:latest'
 
 
-class SecuentialExtractorDummyClient:
+class ExtractorDummyClient:
     def list_repository_files(self, *args, **kwargs):
         return [
             "some/deep/dockerfiles/directory/Dockerfile",
@@ -72,8 +72,8 @@ class SecuentialExtractorDummyClient:
 
 
 @pytest.fixture
-def secuential_client():
-    return SecuentialExtractorDummyClient()
+def extractor_client():
+    return ExtractorDummyClient()
 
 
 @pytest.fixture
@@ -82,10 +82,10 @@ def dummy_repo():
 
 
 class TestSecuentialExtractor:
-    def test_happy_path(self, dummy_repo, secuential_client):
+    def test_happy_path(self, dummy_repo, extractor_client):
         url, sha = dummy_repo[0]
 
-        r = services.SecuentialExtractorService.extract_images_from(dummy_repo, secuential_client)
+        r = services.SecuentialExtractorService.extract_images_from(dummy_repo, extractor_client)
 
         assert "errors" in r
         assert r["errors"] == {}
@@ -104,3 +104,29 @@ class TestSecuentialExtractor:
         assert len(images) == 2
         assert "python:3.9-slim" in images
         assert "alpine:latest" in images
+
+
+class TestThreadedExtractor:
+    def test_happy_path(self, dummy_repo, extractor_client):
+        url, sha = dummy_repo[0]
+
+        r = services.SecuentialThreadedService.extract_images_from(dummy_repo, extractor_client)
+
+        assert "errors" in r
+        assert r["errors"] == {}
+
+        assert "data" in r
+        data = r["data"]
+
+        ref = f"{url}:{sha}"
+        assert ref in data
+        files = data[ref]
+
+        assert len(files) == 1
+        assert "some/deep/dockerfiles/directory/Dockerfile" in files
+        images = files["some/deep/dockerfiles/directory/Dockerfile"]
+
+        assert len(images) == 2
+        assert "python:3.9-slim" in images
+        assert "alpine:latest" in images
+
