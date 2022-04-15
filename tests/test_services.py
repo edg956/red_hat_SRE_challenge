@@ -27,7 +27,7 @@ def client():
     return DummyClient()
 
 
-class Services:
+class TestServices:
     def test_extract_paths_from_repository(self, client):
         r = services.search_for_dockerfile('dummy-owner', 'dummy-repo', 'not-sha', client)
         assert len(r) == 5
@@ -81,7 +81,7 @@ def dummy_repo():
     return [("https://github.com/dummy/code.git", "sha")]
 
 
-class SecuentialExtractor:
+class TestSecuentialExtractor:
     def test_happy_path(self, dummy_repo, extractor_client):
         url, sha = dummy_repo[0]
 
