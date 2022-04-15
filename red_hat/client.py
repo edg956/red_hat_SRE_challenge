@@ -14,16 +14,16 @@ class HttpClient:
     def __init__(self, config: Config, client: Session = None):
         if client is None:
             client = Session()
-        self.client = client
-        self.config = config
+        self._client = client
+        self._config = config
 
 
 class RepositoryListClient(HttpClient):
     def list_of_repositories(self, parser: Parser):
-        if not self.config.repository_list_url:
+        if not self._config.repository_list_url:
             raise ValueError("No repository list url specified")
 
-        r = self.client.get(self.config.repository_list_url)
+        r = self.client.get(self._config.repository_list_url)
         r.raise_for_status()
 
         return parser(r.text)
@@ -62,7 +62,7 @@ class GithubClient:
         So, in lieu of loading this tool with the task of recursively inspecting the subtree nodes,
         I take on this simplistic approach.
         """
-        r = self.client.get(
+        r = self._client.get(
             REPOSITORY_URL_TEMPLATE.format(
                 owner=owner,
                 name=repository_name,
