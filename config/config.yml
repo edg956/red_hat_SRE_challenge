@@ -1,2 +1,3 @@
+# extractor_class: "ThreadedExtractorService"
 extractor_class: "SecuentialExtractorService"
-repository_list_url: "https://gist.githubusercontent.com/jmelis/c60e61a893248244dc4fa12b946585c4/raw/25d39f67f2405330a6314cad64fac423a171162c/sources.txt"
+repository_list_url: "https://gist.githubusercontent.com/edg956/e5799af6321d40416db762f75c0759b1/raw/c848f224957e5b73958c9ac0b471a27cf0e2c223/repo%2520list"
