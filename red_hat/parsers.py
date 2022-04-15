@@ -11,7 +11,7 @@ REPOSITORY_LINE_REGEX = (
 
 class Parser(abc.ABC):
     @abc.abstractmethod
-    def parse(self, content: str) -> T.Any:
+    def parse(self, content: str) -> T.List[T.Tuple]:
         pass
 
 
@@ -26,7 +26,7 @@ class RepositoryListParser(Parser):
 
         return list(
             map(
-                lambda x: x.split(),
+                lambda x: tuple(x.split()),
                 filter(
                     filter_fn,
                     content.splitlines()
@@ -36,5 +36,14 @@ class RepositoryListParser(Parser):
 
 
 class DockerfileParser(Parser):
-    def parse(self, content: str) -> T.Dict:
-        pass
+    """A very simplistic Dockerfile parser that only takes lines with the FROM instruction"""
+    def parse(self, content: str) -> T.List[T.Tuple]:
+        return list(
+            map(
+                lambda x: tuple(x.split()[1:]),
+                filter(
+                    lambda x: x.upper().startswith("FROM"),
+                    content.splitlines()
+                )
+            )
+        )

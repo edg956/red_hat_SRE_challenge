@@ -57,43 +57,11 @@ class TestDockerfileParser:
     def test_only_4_different_statements_declared(self, dockerfile_parser: DockerfileParser, dockerfile: str):
         r = dockerfile_parser.parse(dockerfile)
 
-        assert len(r) == 4
+        assert len(r) == 2
 
     def test_only_two_from_statements_declared(self, dockerfile_parser: DockerfileParser, dockerfile: str):
         r = dockerfile_parser.parse(dockerfile)
 
-        assert "FROM" in r
-        statements = r["FROM"]
-
-        assert len(statements) == 2
-        assert statements[0] == ("docker/image:latest", "as", "base")
-        assert statements[1] == ("base",)
-
-    def test_only_two_copy_statements_declared(self, dockerfile_parser: DockerfileParser, dockerfile: str):
-        r = dockerfile_parser.parse(dockerfile)
-
-        assert "COPY" in r
-        statements = r["COPY"]
-
-        assert len(statements) == 2
-        assert statements[0] == ("dependencies.yml", ".")
-        assert statements[1] == ("src", ".")
-
-    def test_only_two_run_statements_declared(self, dockerfile_parser: DockerfileParser, dockerfile: str):
-        r = dockerfile_parser.parse(dockerfile)
-
-        assert "RUN" in r
-        statements = r["RUN"]
-
-        assert len(statements) == 2
-        assert statements[0] == ("package", "update", "&&", "package", "install")
-        assert statements[1] == ("runtime", "build")
-
-    def test_only_one_entrypoint_statement_declared(self, dockerfile_parser: DockerfileParser, dockerfile: str):
-        r = dockerfile_parser.parse(dockerfile)
-
-        assert "ENTRYPOINT" in r
-        statements = r["ENTRYPOINT"]
-
-        assert len(statements) == 1
-        assert statements[0] == ("binary",)
+        assert len(r) == 2
+        assert r[0] == ("docker/image:latest", "as", "base")
+        assert r[1] == ("base",)
