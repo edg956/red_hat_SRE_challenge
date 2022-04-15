@@ -15,6 +15,10 @@ class HttpClient:
     def __init__(self, config: Config, client: Session = None):
         if client is None:
             client = Session()
+
+        if config.github_access_id and config.github_access_secret:
+            client.auth = (config.github_access_id, config.github_access_secret)
+
         self._client = client
         self._config = config
 

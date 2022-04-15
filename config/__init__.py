@@ -20,6 +20,7 @@ class Config:
     extractor_class: str = "SecuentialExtractorService"
     github_access_id: str = None
     github_access_secret: str = None
+    thread_pool_size: int = 1
 
 
 def setup(config_path: str = None) -> Config:

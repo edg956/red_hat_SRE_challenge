@@ -3,10 +3,8 @@ from concurrent import futures
 import logging
 import typing as T
 import os
-from threading import current_thread
 import queue
 
-from ratelimit import limits, sleep_and_retry
 from config import Config
 
 from red_hat import GithubClient
@@ -45,13 +43,13 @@ def extract_from_dockerfile(owner: str, repo_name: str, sha: str, path: str, cli
 class ExtractorService(abc.ABC):
     @classmethod
     @abc.abstractmethod
-    def extract_images_from(cls, repos: T.Iterable[T.Tuple], client: GithubClient) -> T.Dict:
+    def extract_images_from(cls, repos: T.Iterable[T.Tuple], config: Config, client: GithubClient) -> T.Dict:
         pass
 
 
 class SecuentialExtractorService(abc.ABC):
     @classmethod
-    def extract_images_from(cls, repos: T.Iterable[T.Tuple], client: GithubClient) -> T.Dict:
+    def extract_images_from(cls, repos: T.Iterable[T.Tuple], config: Config, client: GithubClient) -> T.Dict:
         data = {}
         errors = {}
 
@@ -84,7 +82,7 @@ class SecuentialExtractorService(abc.ABC):
 
 class ThreadedExtractorService:
     @classmethod
-    def extract_images_from(cls, repos: T.Iterable[T.Tuple], client: GithubClient) -> T.Dict:
+    def extract_images_from(cls, repos: T.Iterable[T.Tuple], config: Config, client: GithubClient) -> T.Dict:
         error_queue = queue.Queue()
         results_queue = queue.Queue()
 
@@ -113,7 +111,7 @@ class ThreadedExtractorService:
             results_queue.put((repo, sha, images))
 
         # Launch threads
-        with futures.ThreadPoolExecutor(5) as executor:
+        with futures.ThreadPoolExecutor(config.thread_pool_size) as executor:
             for repo, sha in repos:
                 r = executor.submit(extract_paths, repo, sha)
                 executor.submit(extract_dockerfiles, r)
