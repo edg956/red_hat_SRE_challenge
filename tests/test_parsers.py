@@ -34,6 +34,7 @@ def repository_list():
         "c260deaf135fc0efaab365ea234a5b86b3ead404\n"
         "github.com/ c260deaf135fc0efaab365ea234a5b86b3ead404\n"
         "    https://github.com/another-user/some-repo     c260deaf135fc0efaab365ea234a5b86b3ead404    \n"
+        "https://github.com/another-user/some-repo     c260deaf135fc0efaab365ea234a5b86b3ead404\n"
     )
 
 
@@ -47,7 +48,7 @@ class TestRepositoryListParser:
 
         expected_lines = (line.split() for line in repository_list.splitlines()[:3])
 
-        for (repo_url, sha), expected_repo_url, expected_sha in zip(r, expected_lines):
+        for (repo_url, sha), (expected_repo_url, expected_sha) in zip(r, expected_lines):
             assert repo_url == expected_repo_url
             assert sha == expected_sha
 
