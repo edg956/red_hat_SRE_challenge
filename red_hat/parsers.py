@@ -4,9 +4,7 @@ import re
 
 
 REPOSITORY_LINE_REGEX = (
-    r"^https://(((?!\-))(xn\-\-)?[a-z0-9\-_]{0,61}[a-z0-9]{1,1}\.)*"
-    r"(xn\-\-)?([a-z0-9\-]{1,61}|[a-z0-9\-]{1,30})\.[a-z]{2,}"
-    r"/[a-zA-z-_0-9]+/[a-zA-z-_0-9]+(.git)? [A-Fa-f0-9]{40}$"
+    r"^https://(www.)?github.com/[a-zA-z-_0-9]+/[a-zA-z-_0-9]+(.git)? [A-Fa-f0-9]{40}$"
 )
 
 class Parser(abc.ABC):

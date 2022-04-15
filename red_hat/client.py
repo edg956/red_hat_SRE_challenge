@@ -3,10 +3,11 @@ import typing as T
 from requests import Session
 
 from config import Config
-from parsers import Parser
+from red_hat.parsers import Parser
 
 
 REPOSITORY_URL_TEMPLATE = "https://api.github.com/repos/{owner}/{name}/git/trees/{sha}?recursive={recursive}"
+RAWCONTENT_URL_TEMPLATE = "https://raw.githubusercontent.com/{owner}/{name}/{sha}/{path}"
 BLOB_TYPE = "blob"
 
 
@@ -23,13 +24,13 @@ class RepositoryListClient(HttpClient):
         if not self._config.repository_list_url:
             raise ValueError("No repository list url specified")
 
-        r = self.client.get(self._config.repository_list_url)
+        r = self._client.get(self._config.repository_list_url)
         r.raise_for_status()
 
-        return parser(r.text)
+        return parser.parse(r.text)
 
 
-class GithubClient:
+class GithubClient(HttpClient):
     def list_repository_files(
         self,
         owner: str,
@@ -75,3 +76,24 @@ class GithubClient:
         data = r.json()
 
         return (node['path'] for node in data["tree"] if node["type"] == BLOB_TYPE)
+
+    def get_dockerfile(
+        self,
+        owner: str,
+        repository_name: str,
+        sha: str,
+        path: str,
+        parser: Parser
+    ) -> T.List[T.Tuple]:
+        r = self._client.get(
+            RAWCONTENT_URL_TEMPLATE.format(
+                owner=owner,
+                name=repository_name,
+                sha=sha,
+                path=path.strip('/')
+            )
+        )
+
+        r.raise_for_status()
+
+        return parser.parse(r.text)

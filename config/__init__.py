@@ -16,10 +16,10 @@ CONFIG_PATH_ENVVAR = 'CHECKER_CONFIG_PATH'
 
 @dataclass
 class Config:
-    github_access_id: T.Optional[str]
-    github_access_secret: T.Optional[str]
     repository_list_url: str
     extractor_class: str = "SecuentialExtractorService"
+    github_access_id: str = None
+    github_access_secret: str = None
 
 
 def setup(config_path: str = None) -> Config:

@@ -13,6 +13,8 @@ def extract_repository_from_url(url: str) -> T.Tuple:
     if not r:
         raise ValueError
 
-    parts = r.group().split("/")[-2:]
+    match = r.group()
+    match = match.rstrip('.git')
+    parts = match.split("/")[-2:]
 
     return tuple(parts)

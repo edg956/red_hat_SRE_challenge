@@ -77,8 +77,12 @@ def extract_from_dockerfile(owner: str, repo_name: str, sha: str, paths: str, cl
 
 
 def extractor_factory(config: Config) -> ExtractorService:
-    assert hasattr(__file__, config.extractor_class), (
+    services_map = {
+        "SecuentialExtractorService": SecuentialExtractorService
+    }
+
+    assert config.extractor_class in services_map, (
         f"Extractor service class {config.extractor_class} not found in module {__file__}"
     )
 
-    return getattr(__file__, config.extractor_class)
+    return services_map[config.extractor_class]
