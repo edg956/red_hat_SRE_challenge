@@ -3,19 +3,33 @@ import typing as T
 from requests import Session
 
 from config import Config
+from parsers import Parser
 
 
 REPOSITORY_URL_TEMPLATE = "https://api.github.com/repos/{owner}/{name}/git/trees/{sha}?recursive={recursive}"
 BLOB_TYPE = "blob"
 
 
-class GithubClient:
+class HttpClient:
     def __init__(self, config: Config, client: Session = None):
         if client is None:
             client = Session()
         self.client = client
         self.config = config
 
+
+class RepositoriesListClient(HttpClient):
+    def list_of_repositories(self, parser: Parser):
+        if not self.config.repository_list_url:
+            raise ValueError("No repository list url specified")
+
+        r = self.client.get(self.config.repository_list_url)
+        r.raise_for_status()
+
+        return parser(r.text)
+
+
+class GithubClient:
     def list_repository_files(
         self,
         owner: str,
@@ -57,6 +71,7 @@ class GithubClient:
             )
         )
 
+        r.raise_for_status()
         data = r.json()
 
         return (node['path'] for node in data["tree"] if node["type"] == BLOB_TYPE)

@@ -5,6 +5,12 @@ import os
 from yaml import load, Loader
 
 
+__all__ = [
+    'Config',
+    'setup'
+]
+
+
 CONFIG_PATH_ENVVAR = 'CHECKER_CONFIG_PATH'
 
 
@@ -15,7 +21,7 @@ class Config:
     github_access_secret: T.Optional[str]
 
 
-def setup() -> Config:
+def setup(config_path: str = None) -> Config:
     config_path = os.environ.get(CONFIG_PATH_ENVVAR, 'config/config.yml')
 
     with open(config_path) as f:
@@ -24,6 +30,3 @@ def setup() -> Config:
     env_config = {env.lower(): os.environ[env] for env in os.environ if env.lower() in Config.__annotations__}
 
     return Config(**{**yaml_config, **env_config})
-
-
-settings = setup()
