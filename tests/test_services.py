@@ -38,7 +38,7 @@ class TestServices:
         assert r[0] == "Dockerfile"
 
     def test_extract_from_dockerfile(self, client):
-        r = services.extract_from_dockerfile('dummy-owner', 'dummy-repo', 'not-sha', ['dockerfiles'], client)
+        r = services.extract_from_paths('dummy-owner', 'dummy-repo', 'not-sha', ['dockerfiles'], client)
 
         assert 'dockerfiles' in r
         images = r['dockerfiles']
@@ -46,6 +46,13 @@ class TestServices:
         assert len(images) == 2
         assert images[0] == 'python:3.9-slim'
         assert images[1] == 'alpine:latest'
+
+    def test_extract_from_dockerfile(self, client):
+        r = services.extract_from_dockerfile('dummy-owner', 'dummy-repo', 'not-sha', 'dockerfiles', client)
+
+        assert len(r) == 2
+        assert r[0] == 'python:3.9-slim'
+        assert r[1] == 'alpine:latest'
 
 
 class SecuentialExtractorDummyClient:
