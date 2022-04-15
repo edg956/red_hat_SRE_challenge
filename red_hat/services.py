@@ -1,7 +1,7 @@
 import abc
 import logging
-from re import L
 import typing as T
+import os
 
 from ratelimit import limits
 from config import Config
@@ -56,7 +56,7 @@ class SecuentialExtractorService(abc.ABC):
 
 def search_for_dockerfile(owner: str, repo_name: str, sha: str, client: GithubClient) -> T.List:
     paths = client.list_repository_files(owner, repo_name, sha)
-    return list(filter(lambda x: "dockerfile" in x.lower(), paths))
+    return list(filter(lambda x: "dockerfile" in os.path.basename(x).lower(), paths))
 
 
 def extract_from_dockerfile(owner: str, repo_name: str, sha: str, paths: str, client: GithubClient) -> T.Dict:
