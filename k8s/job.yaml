@@ -8,4 +8,12 @@ spec:
       containers:
         - name: app
           image: eudg956/dockerfile-extract
-      restartPolicy: Never
+          env:
+            - name: REPOSITORY_LIST_URL
+              value: https://gist.githubusercontent.com/jmelis/c60e61a893248244dc4fa12b946585c4/raw/25d39f67f2405330a6314cad64fac423a171162c/sources.txt
+            - name: GITHUB_ACCESS_ID
+              value: <your-access-id-or-username>
+            - name: GITHUB_SECRET_ID
+              value: <your-access-secret-or-PAT>
+      restartPolicy: OnFailure
+      backoffLimit: 3
