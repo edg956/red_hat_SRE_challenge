@@ -81,11 +81,11 @@ def dummy_repo():
     return [("https://github.com/dummy/code.git", "sha")]
 
 
-class TestSecuentialExtractor:
+class TestSequentialExtractor:
     def test_happy_path(self, dummy_repo, extractor_client):
         url, sha = dummy_repo[0]
 
-        r = services.SecuentialExtractorService.extract_images_from(dummy_repo, extractor_client)
+        r = services.SequentialExtractorService.extract_images_from(dummy_repo, extractor_client)
 
         assert "errors" in r
         assert r["errors"] == {}

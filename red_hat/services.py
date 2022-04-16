@@ -47,7 +47,7 @@ class ExtractorService(abc.ABC):
         pass
 
 
-class SecuentialExtractorService(abc.ABC):
+class SequentialExtractorService(abc.ABC):
     @classmethod
     def extract_images_from(cls, repos: T.Iterable[T.Tuple], config: Config, client: GithubClient) -> T.Dict:
         data = {}
@@ -139,7 +139,7 @@ class ThreadedExtractorService:
 
 def extractor_factory(config: Config) -> ExtractorService:
     services_map = {
-        "SecuentialExtractorService": SecuentialExtractorService,
+        "SequentialExtractorService": SequentialExtractorService,
         "ThreadedExtractorService": ThreadedExtractorService,
     }
 

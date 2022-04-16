@@ -1,5 +1,4 @@
 extractor_class: "ThreadedExtractorService"
-#extractor_class: "SecuentialExtractorService"
 repository_list_url: "https://gist.githubusercontent.com/edg956/e5799af6321d40416db762f75c0759b1/raw/c848f224957e5b73958c9ac0b471a27cf0e2c223/repo%2520list"
 github_access_id: <your-access-id-or-username>
 github_access_secret: <your-access-secret-or-pat>

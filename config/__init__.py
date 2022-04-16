@@ -11,13 +11,13 @@ __all__ = [
 ]
 
 
-CONFIG_PATH_ENVVAR = 'CHECKER_CONFIG_PATH'
+CONFIG_PATH_ENVVAR = 'DOCKERFILE_EXTRACTOR_CONFIG_PATH'
 
 
 @dataclass
 class Config:
     repository_list_url: str
-    extractor_class: str = "SecuentialExtractorService"
+    extractor_class: str = "SequentialExtractorService"
     github_access_id: str = None
     github_access_secret: str = None
     thread_pool_size: int = 1
