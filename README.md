@@ -38,10 +38,11 @@ This program is packaged to run as a kubernetes job. To test that, follow these 
 - Run `make image`
 - If your kubernetes cluster does not have access to the images in your machine (such as when running k3d), tag and push the image in order to upload it to your own repository (since this repo is private, I won't upload the image in a public repository)
 - Run `make run`
-- Run `make log` to get the log of the task. You won't see anything until the pod is completed
+- Run `make log` to get the log of the task. You won't see anything until the pod is completed.
 
 Alternatively, you can run this by installing the dependencies and executing `python app.py`. This project uses [poetry](https://python-poetry.org/) as a package manager, so you may want to install that first. Then, run:
-````bash
+
+```bash
 poetry shell    # Will create a virtual environment at `pwd`
 poetry install
 
