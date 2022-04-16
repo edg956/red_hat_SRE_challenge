@@ -83,9 +83,6 @@ class SequentialExtractorService(abc.ABC):
 class ThreadedExtractorService:
     @classmethod
     def extract_images_from(cls, repos: T.Iterable[T.Tuple], config: Config, client: GithubClient) -> T.Dict:
-        error_queue = queue.Queue()
-        results_queue = queue.Queue()
-
         def extract_paths(repo, sha):
             owner, repo_name = extract_repository_from_url(repo)
             try:
@@ -105,35 +102,33 @@ class ThreadedExtractorService:
                 owner, repo_name = extract_repository_from_url(repo)
                 images = extract_from_paths(owner, repo_name, sha, paths, client)
             except Exception as e:
-                error_queue.put((repo, sha, str(e), paths))
-                return
+                return ('error', (repo, sha, str(e), paths))
 
-            results_queue.put((repo, sha, images))
+            return ('result', (repo, sha, images))
 
         # Launch threads
+        results = []
         with futures.ThreadPoolExecutor(config.thread_pool_size) as executor:
             for repo, sha in repos:
                 r = executor.submit(extract_paths, repo, sha)
-                executor.submit(extract_dockerfiles, r)
+                results.append(executor.submit(extract_dockerfiles, r))
 
         # Collect results and errors through queues
         data = {}
         errors = {}
 
-        while not results_queue.empty():
-            repo, sha, images = results_queue.get()
-            data[f"{repo}:{sha}"] = images
+        for result in results:
+            type_, output = result.result()
 
-        while not error_queue.empty():
-            repo, sha, exception_str, paths = error_queue.get()
+            if type_ == 'result':
+                repo, sha, images = output
+                data[f"{repo}:{sha}"] = images
+            else:
+                repo, sha, exc, paths = output
+                errors[f"{repo}:{sha}"] = {"error": exc}
+                if paths:
+                    errors[f"{repo}:{sha}"]["paths"] = paths
 
-            repo_key = f"{repo}:{sha}"
-
-            errors[repo_key] = {
-                "error": exception_str,
-                "paths": paths
-            }
-        
         return {"data": data, "errors": errors}
 
 

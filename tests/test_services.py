@@ -82,10 +82,10 @@ def dummy_repo():
 
 
 class TestSequentialExtractor:
-    def test_happy_path(self, dummy_repo, extractor_client):
+    def test_happy_path(self, dummy_repo, settings, extractor_client):
         url, sha = dummy_repo[0]
 
-        r = services.SequentialExtractorService.extract_images_from(dummy_repo, extractor_client)
+        r = services.SequentialExtractorService.extract_images_from(dummy_repo, settings, extractor_client)
 
         assert "errors" in r
         assert r["errors"] == {}
@@ -107,10 +107,10 @@ class TestSequentialExtractor:
 
 
 class TestThreadedExtractor:
-    def test_happy_path(self, dummy_repo, extractor_client):
+    def test_happy_path(self, dummy_repo, settings, extractor_client):
         url, sha = dummy_repo[0]
 
-        r = services.ThreadedExtractorService.extract_images_from(dummy_repo, extractor_client)
+        r = services.ThreadedExtractorService.extract_images_from(dummy_repo, settings, extractor_client)
 
         assert "errors" in r
         assert r["errors"] == {}

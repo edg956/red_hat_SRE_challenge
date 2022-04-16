@@ -1,5 +1,7 @@
 import pytest
 
+from config import setup
+
 
 @pytest.fixture(scope="session")
 def repository_list():
@@ -29,3 +31,8 @@ def dockerfile():
         "RUN runtime build\n"
         "ENTRYPOINT binary"
     )
+
+
+@pytest.fixture(scope="session")
+def settings():
+    return setup()
