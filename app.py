@@ -15,7 +15,7 @@ def run(settings: Config):
 
     repos = rl_client.list_of_repositories(RepositoryListParser())
 
-    data = extractor_service.extract_images_from(repos, gh_client)
+    data = extractor_service.extract_images_from(repos, settings, gh_client)
 
     return data
 

@@ -21,9 +21,15 @@ def search_for_dockerfile(owner: str, repo_name: str, sha: str, client: GithubCl
 
 def extract_from_paths(owner: str, repo_name: str, sha: str, paths: str, client: GithubClient) -> T.Dict:
     result = {}
+    errors = {}
     for path in paths:
-        result[path] = extract_from_dockerfile(owner, repo_name, sha, path, client)
-    return result
+        try:
+            result[path] = extract_from_dockerfile(owner, repo_name, sha, path, client)
+        except Exception as e:
+            logger.exception(e)
+            errors[path] = str(e)
+
+    return result, errors
 
 
 def extract_from_dockerfile(owner: str, repo_name: str, sha: str, path: str, client: GithubClient) -> T.Dict:
@@ -60,20 +66,16 @@ class SequentialExtractorService(abc.ABC):
                 paths = search_for_dockerfile(owner, repo_name, sha, client)
             except Exception as e:
                 logger.exception(e)
-                errors[key] = {
-                    "error": str(e),
-                }
+                errors[key] = str(e)
                 continue
 
-            try:
-                images = extract_from_paths(owner, repo_name, sha, paths, client)
-            except Exception as e:
-                logger.exception(e)
-                errors[key] = {
-                    "error": str(e),
-                    "paths": paths,
-                }
-                continue
+            images, err = extract_from_paths(owner, repo_name, sha, paths, client)
+
+            if err:
+                if key not in errors:
+                    errors[key] = {}
+                for path in err:
+                    errors[key][path] = err[path]
 
             data[key] = images
 
@@ -88,9 +90,9 @@ class ThreadedExtractorService:
             try:
                 paths = search_for_dockerfile(owner, repo_name, sha, client)
             except Exception as e:
-                error = (repo, sha, str(e), None)
+                error = (repo, sha, e)
                 return error
-            
+
             return (repo, sha, paths)
 
         def extract_dockerfiles(future):
@@ -98,13 +100,13 @@ class ThreadedExtractorService:
 
             repo, sha, paths = item
 
-            try:
-                owner, repo_name = extract_repository_from_url(repo)
-                images = extract_from_paths(owner, repo_name, sha, paths, client)
-            except Exception as e:
-                return ('error', (repo, sha, str(e), paths))
+            if isinstance(paths, Exception):
+                return (repo, sha, {}, str(paths))
 
-            return ('result', (repo, sha, images))
+            owner, repo_name = extract_repository_from_url(repo)
+            images, err = extract_from_paths(owner, repo_name, sha, paths, client)
+
+            return (repo, sha, images, err)
 
         # Launch threads
         results = []
@@ -118,16 +120,23 @@ class ThreadedExtractorService:
         errors = {}
 
         for result in results:
-            type_, output = result.result()
+            repo, sha, images, err = result.result()
 
-            if type_ == 'result':
-                repo, sha, images = output
-                data[f"{repo}:{sha}"] = images
-            else:
-                repo, sha, exc, paths = output
-                errors[f"{repo}:{sha}"] = {"error": exc}
-                if paths:
-                    errors[f"{repo}:{sha}"]["paths"] = paths
+            key = f"{repo}:{sha}"
+
+            if key not in data:
+                data[key] = {}
+            data[key] = images
+
+            if err:
+                if key not in errors:
+                    errors[key] = {}
+
+                if isinstance(err, dict):
+                    for path in err:
+                        errors[key][path] = err[path]
+                else:
+                    errors[key] = err
 
         return {"data": data, "errors": errors}
 
