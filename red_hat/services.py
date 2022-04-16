@@ -115,7 +115,7 @@ class ThreadedExtractorService:
                 r = executor.submit(extract_paths, repo, sha)
                 results.append(executor.submit(extract_dockerfiles, r))
 
-        # Collect results and errors through queues
+        # Collect results and errors from the futures' results
         data = {}
         errors = {}
 
