@@ -17,6 +17,7 @@ def run(settings: Config):
 
     data = extractor_service.extract_images_from(repos, settings, gh_client)
 
+    # TODO: send somewhere?
     return data
 
 

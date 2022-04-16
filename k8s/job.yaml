@@ -1,0 +1,11 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dockerfile.extract
+spec:
+  template:
+    spec:
+      containers:
+        - name: app
+          image: eudg956/dockerfile-extract
+      restartPolicy: Never
