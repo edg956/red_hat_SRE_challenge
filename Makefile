@@ -10,6 +10,6 @@ ns:
 run: ns
 	kubectl --namespace red-hat apply -f $(FILES_DIR)/job.yaml
 
-log:
+log: ns run
 	pods=$$(kubectl --namespace red-hat get pods --selector=job-name=dockerfile.extract --output=jsonpath='{.items[*].metadata.name}'); \
 	kubectl --namespace red-hat logs $$pods;
