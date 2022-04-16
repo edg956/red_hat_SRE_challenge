@@ -22,3 +22,12 @@ The following table contains the available configuration
 | github_access_secret | string | The access secret or PAT to use for github's API basic auth |
 | extractor_class | string | The name of the class that implements the process of extracting docker images from Dockerfiles. Can be one of [`SequentialExtractorService`, `ThreadedExtractorService`]   |
 | thread_pool_size | int | Positive integer that sets the maximum number of threads to spawn when using `ThreadedExtractorService` |
+
+## Extractor services comparison
+On an input list of about twelve different, valid, repositories, the results of running `time python app.py` were the following:
+| Service | Attempt number | Time |
+|:-------:|:--------------:|:----:|
+| SequentialExtractorService | 1 | 8.25s |
+| SequentialExtractorService | 2 | 5.56s |
+| ThreadedExtractorService | 1 | 2.24s |
+| ThreadedExtractorService | 2 | 2.14s |
